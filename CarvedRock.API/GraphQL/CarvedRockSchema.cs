@@ -1,4 +1,5 @@
-﻿using GraphQL.Types;
+﻿using GraphQL;
+using GraphQL.Types;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,9 +9,9 @@ namespace CarvedRock.API.GraphQL
 {
     public class CarvedRockSchema : Schema
     {
-        public CarvedRockSchema()
+        public CarvedRockSchema(IDependencyResolver resolver): base(resolver)
         {
-            
+            Query = resolver.Resolve<CarvedRockQuery>();
         }
     }
 }

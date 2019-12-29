@@ -3,6 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using CarvedRock.API.Data;
+using CarvedRock.API.GraphQL;
+using CarvedRock.API.Repositories;
+using GraphQL;
 using GraphQL.Server;
 using GraphQL.Server.Ui.Playground;
 using Microsoft.AspNetCore.Builder;
@@ -36,9 +39,13 @@ namespace CarvedRock.API
             {
                 options.UseSqlServer(Configuration["ConnectionStrings:CarvedRock"]);
             });
+            services.AddScoped<ProductRepository>();
+            services.AddScoped<IDependencyResolver>(s => new FuncDependencyResolver(s.GetRequiredService));
+            services.AddScoped<CarvedRockSchema>();
 
-            services.AddGraphQL(o => { o.ExposeExceptions = false; })
+            services.AddGraphQL(o => { o.ExposeExceptions = true; })
                 .AddGraphTypes(ServiceLifetime.Scoped);
+
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
             services.AddMvc();
            
@@ -47,17 +54,15 @@ namespace CarvedRock.API
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, CarvedRockDbContext dbContext, IHostingEnvironment env)
         {
-            //app.UseGraphQLPlayground(new GraphQLPlaygroundOptions());
+            app.UseGraphQL<CarvedRockSchema>();
+            app.UseGraphQLPlayground(new GraphQLPlaygroundOptions());
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
             }
-            else
-            {
-                // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
-                app.UseMvc();
-                dbContext.Seed();
-            }
+
+            dbContext.Seed();
+
 
         }
     }
