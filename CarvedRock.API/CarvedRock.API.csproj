@@ -17,7 +17,7 @@
 
   <ItemGroup>
     <Folder Include="Data\Migrations\" />
-    <Folder Include="GraphQL\" />
+    <Folder Include="GraphQL\Types\" />
     <Folder Include="Repositories\" />
   </ItemGroup>
 
