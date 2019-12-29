@@ -1,5 +1,6 @@
 ﻿using CarvedRock.API.Data.Entities;
 using CarvedRock.API.Repositories;
+using GraphQL.DataLoader;
 using GraphQL.Types;
 using System;
 using System.Collections.Generic;
@@ -10,7 +11,10 @@ namespace CarvedRock.API.GraphQL.Types
 {
     public class ProductType: ObjectGraphType<Product>
     {
-        public ProductType(ProductReviewRepository reviewRepository)
+        public ProductType(
+            ProductReviewRepository reviewRepository,
+            IDataLoaderContextAccessor dataLoaderAccessor
+            )
         {
             Field(t => t.Id);
             Field(t => t.Name).Description("The name of the product");
@@ -23,7 +27,14 @@ namespace CarvedRock.API.GraphQL.Types
             Field<ProductTypeEnumType>("Type", "The type of product");
             Field<ListGraphType<ProductReviewType>>(
                 "reviews",
-                resolve: context => reviewRepository.GetForProduct(context.Source.Id)
+                resolve: context =>
+                {
+                    var loader =
+                        dataLoaderAccessor.Context.GetOrAddCollectionBatchLoader<int, ProductReview>(
+                            "GetReviewsByProductId", reviewRepository.GetForProducts
+                            );
+                    return loader.LoadAsync(context.Source.Id);
+                }
             );
         }
     }
