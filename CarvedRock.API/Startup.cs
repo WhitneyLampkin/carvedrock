@@ -40,11 +40,14 @@ namespace CarvedRock.API
                 options.UseSqlServer(Configuration["ConnectionStrings:CarvedRock"]);
             });
             services.AddScoped<ProductRepository>();
+            services.AddScoped<ProductReviewRepository>();
             services.AddScoped<IDependencyResolver>(s => new FuncDependencyResolver(s.GetRequiredService));
             services.AddScoped<CarvedRockSchema>();
 
             services.AddGraphQL(o => { o.ExposeExceptions = true; })
-                .AddGraphTypes(ServiceLifetime.Scoped);
+                .AddGraphTypes(ServiceLifetime.Scoped)
+                .AddDataLoader();
+                
 
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
             services.AddMvc();
