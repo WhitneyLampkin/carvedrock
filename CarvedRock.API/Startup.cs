@@ -46,7 +46,8 @@ namespace CarvedRock.API
 
             services.AddGraphQL(o => { o.ExposeExceptions = true; })
                 .AddGraphTypes(ServiceLifetime.Scoped)
-                .AddDataLoader();
+                .AddDataLoader()
+                .AddUserContextBuilder(httpContext => httpContext.User);
                 
 
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
