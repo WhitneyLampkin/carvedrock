@@ -5,14 +5,32 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using CarvedRock.Web.Models;
+using CarvedRock.Web.Clients;
 
 namespace CarvedRock.Web.Controllers
 {
     public class HomeController : Controller
     {
-        public IActionResult Index()
+        private readonly ProductHttpClient _httpClient;
+        private readonly ProductGraphClient _graphClient;
+
+        public HomeController(ProductHttpClient httpClient, ProductGraphClient graphClient)
         {
-            return View();
+            _httpClient = httpClient;
+            _graphClient = graphClient;
+        }
+
+        public async Task<IActionResult> Index()
+        {
+            var response = await _httpClient.GetProducts();
+            response.ThrowErrors();
+            return View(response.Data.Products);
+        }
+
+        public async Task<IActionResult> ProductDetail(int productId = 8)
+        {
+            var product = await _graphClient.GetProduct(productId);
+            return View(product); 
         }
 
         public IActionResult Privacy()

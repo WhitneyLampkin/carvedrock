@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using CarvedRock.Web.Clients;
+using GraphQL.Client;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -31,8 +33,10 @@ namespace CarvedRock.Web
                 options.MinimumSameSitePolicy = SameSiteMode.None;
             });
 
-
+            services.AddSingleton(t => new GraphQLClient(Configuration["CarvedRockApiUri"]));
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
+            services.AddSingleton<ProductGraphClient>();
+            services.AddHttpClient<ProductHttpClient>(o => o.BaseAddress = new Uri(Configuration["CarvedRockApiUri"]));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
